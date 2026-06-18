@@ -13,6 +13,7 @@ import LeaveTable from "../components/LeaveTable";
 import ReimbursementTable from "../components/ReimbursementTable";
 import TeamLeaveTable from "../components/TeamLeaveTable";
 import TeamReimbursementTable from "../components/TeamReimbursementTable";
+import LeaveCalendar from "../components/LeaveCalendar";
 
 const tabs = [
   { key: "my-leaves", label: "My Leaves" },
@@ -40,10 +41,10 @@ const ManagerDashboard = () => {
         api.get("/api/leave/allLeaves"),
         api.get("/api/reimbursement/getAll"),
       ]);
-      setMyLeaves(ml.data);
-      setMyReimbursements(mr.data);
-      setTeamLeaves(tl.data);
-      setTeamReimb(tr.data.reimbursements || []);
+      setMyLeaves(ml.data.data || ml.data || []);
+      setMyReimbursements(mr.data.data || mr.data || []);
+      setTeamLeaves(tl.data.data || tl.data || []);
+      setTeamReimb(tr.data.data || tr.data.reimbursements || []);
     } catch {
       toast.error("Failed to load data");
     } finally {
@@ -154,11 +155,25 @@ const ManagerDashboard = () => {
     }
     switch (activeTab) {
       case "my-leaves":
-        return <LeaveTable leaves={myLeaves} />;
+      return (
+       <>
+        <LeaveCalendar leaves={myLeaves} />
+        <LeaveTable leaves={myLeaves} />
+       </>
+       );
+
       case "my-reimbursements":
         return <ReimbursementTable reimbursements={myReimbursements} onUpdateBill={handleUpdateBill} onDeleteBill={handleDeleteBill} />;
       case "team-leaves":
-        return <TeamLeaveTable leaves={teamLeaves} onUpdate={handleUpdateLeave} />;
+        return (
+          <>
+           <LeaveCalendar leaves={teamLeaves} />
+           <TeamLeaveTable
+             leaves={teamLeaves}
+             onUpdate={handleUpdateLeave}
+          />
+        </>
+  );
       case "team-reimbursements":
         return <TeamReimbursementTable reimbursements={teamReimb} onUpdate={handleUpdateReimb} />;
       default:
